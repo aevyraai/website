@@ -483,7 +483,7 @@
     designed for someone else's problems.
   </p>
 
-  <div class="hero-meta">By <a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener" style="color: var(--teal); text-decoration: none;">Ankith Gunapal</a> · Aevyra · March 2026 · 5 min read</div>
+  <div class="hero-meta">By <a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener" style="color: var(--teal); text-decoration: none;">Ankith Gunapal</a> · Aevyra · April 2026 · 5 min read</div>
 </header>
 
 <!-- ── Article ────────────────────────────────────────────────────── -->
@@ -496,22 +496,6 @@
   solid. You pick one based on cost, latency, or whatever metric the leaderboard
   highlighted. Six months later, you're frustrated. The model that looked best on
   paper is producing output your team has to filter, fix, or reject constantly.</p>
-
-  <!-- ── Key stats ── -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-number">~5×</div>
-      <div class="stat-label">cost saving running a fine-tuned 8B model vs GPT-4o-mini</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">6 pts</div>
-      <div class="stat-label">quality gap fine-tuning can close on your own data</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">~300</div>
-      <div class="stat-label">real examples needed to run a meaningful benchmark</div>
-    </div>
-  </div>
 
   <h2>The Leaderboard Illusion</h2>
 
@@ -571,13 +555,15 @@
   long documents well, and at low volume the cost was fine. Now you're processing
   thousands of documents a day and the bill is significant.</p>
 
-  <p>The question on the table: can a fine-tuned 8B open-source model match
+  <p>The question on the table: can a smaller open-source model match
   GPT-4o-mini's summary quality on your specific document types, at a fraction of the
   cost? The 8B tier has gotten genuinely strong — Qwen3-8B from Alibaba,
   DeepSeek-R1-Distill-Llama-8B, and Meta's Llama 3.1 8B are all competitive on
-  general benchmarks. But "competitive on general benchmarks" is exactly the trap
-  we just described. The only way to know if they work for your summaries is to
-  benchmark on your documents.</p>
+  general benchmarks. And these aren't fringe choices — major organizations are
+  running models like these in production today, not because they're the newest,
+  but because they're the right fit for the task. But "competitive on general
+  benchmarks" is exactly the trap we just described. The only way to know if they
+  work for your summaries is to benchmark on your documents.</p>
 
   <!-- ── Benchmark chart ── -->
   <div class="chart-section" id="chart-section">
@@ -612,6 +598,7 @@
       <div class="legend-item"><div class="legend-dot oss"></div>Open source (8B)</div>
     </div>
   </div>
+  <p style="font-size:0.78rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;"><em>Numbers above are illustrative — your results will vary by task and data. Specific models will change; the approach won't.</em></p>
 
   <!-- ── Cost comparison ── -->
   <div class="cost-grid">
@@ -627,7 +614,7 @@
       <div class="cost-row"><span>Fine-tunable</span><span class="val">No</span></div>
     </div>
     <div class="cost-card oss">
-      <div class="cost-tag">Open Source · self-hosted · after fine-tuning</div>
+      <div class="cost-tag">Open Source · self-hosted</div>
       <div class="cost-model">DeepSeek-R1-Distill-8B</div>
       <div class="cost-row"><span>Faithfulness</span><span class="val highlight">89.7%</span></div>
       <div class="cost-row"><span>Latency</span><span class="val highlight">0.5s</span></div>
@@ -643,39 +630,39 @@
   self-host. That gap might already be acceptable for your use case. Either way,
   you're making the decision on data, not intuition.</p>
 
-  <p>The more interesting move: fine-tune DeepSeek-R1-Distill or Qwen3-8B on
-  your 300 document-summary pairs. Run the benchmark again. The score moves —
-  maybe to 89%, maybe to 92%. You now know whether fine-tuning on your own
-  document types closes the gap with GPT-4o-mini. If it does, you've solved a
-  cost problem with a model that fits on a single A100. If it doesn't, you know
-  that too, and you haven't wasted months on infrastructure for a model that
-  won't work.</p>
+  <p>The more interesting move: take that benchmark and use it to improve. Feed
+  your dataset and current prompt into Reflex — it runs evals, diagnoses where
+  scores are falling short, and rewrites the prompt iteratively until it
+  converges. Run the benchmark again with the new prompt. The score moves — maybe
+  to 89%, maybe to 92%. You now know whether prompt optimization closes the gap,
+  before you consider anything more expensive. If it does, you've solved a quality
+  problem in hours. If it doesn't, you have data telling you exactly why.</p>
 
   <!-- ── The loop ── -->
   <div class="loop-diagram">
     <div class="loop-step">
       <div class="loop-icon">📂</div>
-      <div class="loop-step-label">Collect real examples</div>
+      <div class="loop-step-label">Dataset + prompt</div>
     </div>
     <div class="loop-arrow">→</div>
     <div class="loop-step">
       <div class="loop-icon">⚖️</div>
-      <div class="loop-step-label">Benchmark models</div>
+      <div class="loop-step-label">Reflex scores on your data</div>
     </div>
     <div class="loop-arrow">→</div>
     <div class="loop-step">
-      <div class="loop-icon">🎯</div>
-      <div class="loop-step-label">Fine-tune best candidate</div>
+      <div class="loop-icon">🔍</div>
+      <div class="loop-step-label">Diagnoses failures</div>
     </div>
     <div class="loop-arrow">→</div>
     <div class="loop-step">
-      <div class="loop-icon">📈</div>
-      <div class="loop-step-label">Measure again</div>
+      <div class="loop-icon">✏️</div>
+      <div class="loop-step-label">Rewrites the prompt</div>
     </div>
     <div class="loop-arrow">→</div>
     <div class="loop-step">
       <div class="loop-icon">✅</div>
-      <div class="loop-step-label">Ship when scores converge</div>
+      <div class="loop-step-label">Ships when scores converge</div>
     </div>
   </div>
 
@@ -696,59 +683,65 @@
 
   <h2>Moving Past Benchmarks</h2>
 
-  <p>You don't need much to start evaluating on your own distribution. You need a
-  dataset of real examples from your task. You need to define what success looks
-  like. You need a way to run models and measure results without rebuilding
-  evaluation infrastructure from scratch.</p>
+  <p>You don't need much to start. You need a dataset of real examples from your
+  task and a definition of what a good response looks like — a rubric your judge
+  can score against.</p>
 
-  <p>Verdict does exactly this. Point it at any combination of models — GPT-4o-mini,
-  Claude, Gemini, or a locally hosted open-source model — and benchmark
-  against your data. Get a score, track it across iterations, and know with
-  confidence which model is the right call for your use case.</p>
+  <p>Give that to Reflex. It runs evals on your dataset, diagnoses where the
+  current prompt is falling short, and rewrites it — iterating until scores
+  converge. The evaluation loop runs internally; you don't need to wire anything
+  together yourself.</p>
 
   <!-- ── Code block ── -->
   <div class="code-wrap">
     <div class="code-topbar">
       <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
-      <div class="code-filename">benchmark.py</div>
+      <div class="code-filename">optimize.sh</div>
     </div>
-<pre><span class="kw">from</span> aevyra_verdict <span class="kw">import</span> <span class="fn">Verdict</span>, <span class="fn">Model</span>, <span class="fn">Eval</span>
+<pre><span class="cm"># Your dataset: real examples from your task</span>
+<span class="cm"># Your prompt:  whatever you're running today</span>
+<span class="cm"># Your judge:   a rubric that defines what a good response looks like</span>
 
-<span class="cm"># 300 real examples: documents your analysts actually submit</span>
-dataset = <span class="fn">load_dataset</span>(<span class="st">"report_summaries.json"</span>)  <span class="cm"># {document, reference_summary}</span>
+aevyra-reflex optimize report_summaries.jsonl \
+  prompt.md \
+  -m openrouter/meta-llama/llama-3.1-8b-instruct \
+  --judge openrouter/qwen/qwen3-8b \
+  --judge-criteria judge_rubric.md \
+  -o best_prompt.md
 
-models = [
-    <span class="fn">Model</span>(name=<span class="st">"gpt-4o-mini"</span>,                               provider=<span class="st">"openai"</span>),
-    <span class="fn">Model</span>(name=<span class="st">"meta-llama/Llama-3.1-8B-Instruct"</span>,         provider=<span class="st">"together"</span>),
-    <span class="fn">Model</span>(name=<span class="st">"deepseek-ai/DeepSeek-R1-Distill-Llama-8B"</span>, provider=<span class="st">"together"</span>),
-    <span class="fn">Model</span>(name=<span class="st">"Qwen/Qwen3-8B"</span>,                            provider=<span class="st">"local"</span>),
-]
-
-results = <span class="fn">Verdict</span>(
-    dataset=dataset,
-    models=models,
-    evaluator=<span class="fn">Eval</span>.<span class="fn">faithfulness</span>(),  <span class="cm"># does the summary accurately reflect the source?</span>
-).<span class="fn">run</span>()
-
-<span class="fn">print</span>(results.<span class="fn">summary</span>())
-<span class="cm"># → gpt-4o-mini:                     91.3%  |  latency 2.1s  |  $0.54/1k reqs</span>
-<span class="cm"># → Llama-3.1-8B-Instruct:           79.4%  |  latency 0.4s  |  $0.60/1k reqs</span>
-<span class="cm"># → DeepSeek-R1-Distill-Llama-8B:    85.1%  |  latency 0.5s  |  $0.70/1k reqs</span>
-<span class="cm"># → Qwen3-8B:                        83.7%  |  latency 0.3s  |  $0.40/1k reqs</span></pre>
+<span class="cm"># Baseline score : 0.38</span>
+<span class="cm"># Final score    : 0.89  (+134%)</span>
+<span class="cm"># Same model. Better prompt.</span></pre>
   </div>
 
   <p>Stop picking models based on how well they perform on tasks they weren't
-  built for. Start evaluating on what actually matters: your problem.</p>
+  built for. Bring your data, define what good looks like, and let the eval
+  do the work.</p>
+
+  <!-- ── Key stats ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-number">134%</div>
+      <div class="stat-label">score improvement from prompt optimization on real task data</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">~$1</div>
+      <div class="stat-label">total API cost to run a full prompt optimization on 100 real examples</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">~300</div>
+      <div class="stat-label">real examples needed to run a meaningful benchmark</div>
+    </div>
+  </div>
 
   <!-- ── CTA ── -->
   <div class="cta-block">
-    <h3>Start benchmarking on your data</h3>
-    <p>Verdict is open source. Install it, point it at your models, and get a
-    score in minutes.</p>
-    <div class="cta-install">pip install aevyra-verdict</div>
+    <h3>Optimize on your data, not someone else's benchmarks</h3>
+    <p>Reflex is open source. Bring your dataset and prompt — it handles the rest.</p>
+    <div class="cta-install">pip install aevyra-reflex</div>
     <div class="cta-links">
-      <a href="https://aevyra.mintlify.app/verdict/introduction">Documentation →</a>
-      <a href="https://github.com/aevyraai/verdict">GitHub →</a>
+      <a href="https://aevyra.mintlify.app/reflex/introduction">Documentation →</a>
+      <a href="https://github.com/aevyraai/reflex">GitHub →</a>
     </div>
   </div>
 
