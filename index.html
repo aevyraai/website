@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aevyra — Intelligence from Beyond</title>
+  <meta name="description" content="Aevyra — a personal space for projects, writing, and ideas at the edge of what's possible." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Home-specific */
+    .home-sections {
+      padding-bottom: 2rem;
+    }
+
+    .preview-section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .preview-header .section-title {
+      margin-bottom: 0;
+    }
+
+    .view-all {
+      font-size: 0.8rem;
+      color: var(--teal-dark);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
+
+    .view-all:hover {
+      color: var(--teal-bright);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* About blurb on home */
+    .about-strip {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .about-strip h2 {
+      font-family: 'Cormorant Garamond', Palatino, Georgia, serif;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 300;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 1rem;
+    }
+
+    .about-strip p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin-bottom: 1.25rem;
+    }
+
+    .about-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .orbit-ring {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orbit-ring::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 220, 200, 0.2);
+      animation: spin 20s linear infinite;
+    }
+
+    .orbit-ring::after {
+      content: '';
+      position: absolute;
+      inset: 15px;
+      border-radius: 50%;
+      border: 1px dashed rgba(0, 180, 160, 0.12);
+      animation: spin 35s linear infinite reverse;
+    }
+
+    .orbit-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--teal-mid);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--teal-mid);
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .orbit-center {
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(0,180,160,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      border: 1px solid rgba(0, 220, 200, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .about-strip {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .about-visual { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="aevyra-logo-final.svg" alt="Aevyra" />
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener" class="nav-cta">Get in touch</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrapper">
+
+    <!-- HERO -->
+    <section class="hero">
+      <img src="aevyra-logo-final.svg" alt="Aevyra" class="hero-logo" />
+      <p class="hero-tagline">open source · ai infrastructure</p>
+      <h1 class="hero-title">
+        Infrastructure for the<br />
+        <span class="highlight">age of intelligent systems</span>
+      </h1>
+      <p class="hero-subtitle">
+        The wave of capable foundation models has created a new problem: the infrastructure
+        to actually use them well doesn't exist yet. Not at the level that matters —
+        benchmarking, adaptation, and the runtime systems that let models operate
+        autonomously in the real world. That's what we're building.
+      </p>
+      <div class="hero-buttons">
+        <a href="projects.html" class="btn-primary">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Explore Projects
+        </a>
+        <a href="https://github.com/aevyraai" target="_blank" rel="noopener" class="btn-secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.11.82-.26.82-.58v-2.17c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub ↗
+        </a>
+      </div>
+      <div class="scroll-hint">
+        <span>Scroll</span>
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ABOUT STRIP -->
+    <div class="about-strip">
+      <div>
+        <span class="section-label">About Aevyra</span>
+        <h2>Open source, from first principles, at every layer of the stack</h2>
+        <p>
+          Aevyra is building the missing layer between foundation models and production —
+          the tools for benchmarking, adaptation, and autonomous operation that don't yet
+          exist at the quality teams actually need.
+        </p>
+        <p>
+          Everything is open-source and built from first principles: no wrappers,
+          no shortcuts, no leaderboard theater.
+        </p>
+        <a href="projects.html" class="btn-primary" style="margin-top:0.5rem;">
+          See the projects →
+        </a>
+      </div>
+      <div class="about-visual">
+        <div class="orbit-ring">
+          <div class="orbit-dot"></div>
+          <div class="orbit-center">✦</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- RECENT BLOG POSTS -->
+    <div class="preview-section">
+      <div class="preview-header">
+        <div>
+          <span class="section-label">Latest Thoughts</span>
+          <h2 class="section-title">From the Blog</h2>
+        </div>
+        <a href="blog.html" class="view-all">View all posts →</a>
+      </div>
+      <div class="card-grid">
+
+        <a href="why-llm-leaderboard-scores-dont-matter.html" class="card">
+          <span class="card-tag">LLM Benchmarking</span>
+          <h3 class="card-title">Why Your LLM Leaderboard Scores Don't Matter</h3>
+          <p class="card-excerpt">
+            At sufficient scale, the real decision isn't which frontier model to use — it's
+            whether a fine-tuned 8B open-source model can match GPT-5.4 nano on your task
+            at up to 10× lower cost.
+          </p>
+          <div class="card-meta">
+            <span>March 2026 · 5 min read</span>
+            <span class="card-arrow">→</span>
+          </div>
+        </a>
+
+
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- RECENT PROJECTS -->
+    <div class="preview-section">
+      <div class="preview-header">
+        <div>
+          <span class="section-label">What We're Building</span>
+          <h2 class="section-title">Recent Projects</h2>
+        </div>
+        <a href="projects.html" class="view-all">View all projects →</a>
+      </div>
+      <div class="card-grid">
+
+        <a href="https://github.com/aevyraai/verdict" target="_blank" rel="noopener" class="project-card">
+          <div class="project-header">
+            <span class="project-icon">⚖️</span>
+            <div class="project-links">
+              <span class="project-link" style="color: var(--teal-mid); border-color: rgba(0,220,200,0.3); background: rgba(0,220,200,0.06);">Released v0.2.0</span>
+            </div>
+          </div>
+          <h3 class="project-name">Verdict</h3>
+          <p class="project-desc">
+            LLM benchmarking. Run your prompts across any model, score responses with pluggable metrics, and get a side-by-side comparison. The foundation for model selection, prompt engineering, and knowing whether your fine-tuning is actually working.
+          </p>
+          <div class="project-tags">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">LLM Evals</span>
+            <span class="tech-tag">Open Source</span>
+          </div>
+          <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border); font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--text-muted);">
+            pip install aevyra-verdict
+          </div>
+        </a>
+
+        <a href="https://github.com/aevyraai/reflex" target="_blank" rel="noopener" class="project-card">
+          <div class="project-header">
+            <span class="project-icon">⚡</span>
+            <div class="project-links">
+              <span class="project-link" style="color: var(--teal-mid); border-color: rgba(0,220,200,0.3); background: rgba(0,220,200,0.06);">Released v0.1.0</span>
+            </div>
+          </div>
+          <h3 class="project-name">Reflex</h3>
+          <p class="project-desc">
+            Agentic prompt optimization. Reflex takes your dataset and prompt, runs evals, diagnoses why scores are falling short, and rewrites the prompt — iterating until it converges.
+          </p>
+          <div class="project-tags">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">Prompt Optimization</span>
+            <span class="tech-tag">Open Source</span>
+          </div>
+          <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border); font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--text-muted);">
+            pip install aevyra-reflex
+          </div>
+        </a>
+
+        <a href="https://github.com/aevyraai" target="_blank" rel="noopener" class="project-card">
+          <div class="project-header">
+            <span class="project-icon">🔁</span>
+            <div class="project-links">
+              <span class="project-link">Coming Soon</span>
+            </div>
+          </div>
+          <h3 class="project-name">Fine-tuning Infrastructure</h3>
+          <p class="project-desc">
+            Closing the loop between evaluation and training. Good fine-tuning requires good data curation, careful eval design, and knowing when to stop — none of which scales with manual iteration. A pipeline that automates the cycle: evaluate, curate, train, repeat.
+          </p>
+          <div class="project-tags">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">Fine-tuning</span>
+            <span class="tech-tag">Open Source</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <img src="aevyra-logo-final.svg" alt="Aevyra" class="footer-logo" />
+      <p class="footer-tagline">intelligence from beyond</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="projects.html">Projects</a>
+        <a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener">Contact</a>
+      </div>
+      <p class="footer-copy">© 2026 Aevyra. All rights reserved.</p>
+    </footer>
+
+  </div>
+
+  <script>
+    // Mobile nav toggle
+    const toggle = document.getElementById('navToggle');
+    const links  = document.getElementById('navLinks');
+    toggle.addEventListener('click', () => links.classList.toggle('open'));
+  </script>
+</body>
+</html>

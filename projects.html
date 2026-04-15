@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects — Aevyra</title>
+  <meta name="description" content="Open source projects, experiments, and tools built by Aevyra." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .project-card-full {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card-full::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--teal-dark), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .project-card-full:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 180, 160, 0.08);
+    }
+
+    .project-card-full:hover::after {
+      opacity: 1;
+    }
+
+    .proj-icon-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .proj-emoji {
+      font-size: 2rem;
+      line-height: 1;
+      filter: drop-shadow(0 0 12px rgba(0,220,200,0.3));
+    }
+
+    .proj-btns {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .proj-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: all 0.2s;
+      letter-spacing: 0.03em;
+    }
+
+    .proj-btn:hover {
+      color: var(--teal-bright);
+      border-color: rgba(0, 220, 200, 0.35);
+      background: rgba(0, 220, 200, 0.06);
+    }
+
+    .proj-name {
+      font-family: 'Cormorant Garamond', Palatino, Georgia, serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1.25;
+    }
+
+    .proj-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .proj-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .proj-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 0.85rem;
+      margin-top: auto;
+    }
+
+    .proj-stats {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .proj-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .proj-status {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    .status-active {
+      background: rgba(0, 220, 200, 0.1);
+      border: 1px solid rgba(0, 220, 200, 0.25);
+      color: var(--teal-mid);
+    }
+
+    .status-wip {
+      background: rgba(255, 153, 34, 0.1);
+      border: 1px solid rgba(255, 153, 34, 0.25);
+      color: var(--orange);
+    }
+
+    .status-archive {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    /* GitHub CTA strip */
+    .github-strip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .github-strip::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -5%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(ellipse, rgba(180, 80, 255, 0.06) 0%, transparent 70%);
+    }
+
+    .github-strip-text h3 {
+      font-family: 'Cormorant Garamond', Palatino, Georgia, serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+
+    .github-strip-text p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      max-width: 400px;
+    }
+
+    /* Section category label */
+    .category-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      margin-top: 3.5rem;
+    }
+
+    .category-row:first-child {
+      margin-top: 0;
+    }
+
+    .category-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .category-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="aevyra-logo-final.svg" alt="Aevyra" />
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="projects.html" class="active">Projects</a></li>
+
+      <li><a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener" class="nav-cta">Get in touch</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrapper">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <span class="section-label">Open Source</span>
+      <h1 class="section-title">What We're Building</h1>
+      <p class="section-desc">
+        Open-source, from first principles, at every layer of the stack — benchmarking,
+        agentic runtimes, and fine-tuning infrastructure.
+      </p>
+    </div>
+
+    <!-- PROJECTS -->
+    <section style="padding-top: 3rem;">
+
+      <div class="projects-grid">
+
+        <div class="project-card-full">
+          <div class="proj-icon-row">
+            <span class="proj-emoji">⚖️</span>
+            <div class="proj-btns">
+              <a href="https://github.com/aevyraai/verdict" target="_blank" rel="noopener" class="proj-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.11.82-.26.82-.58v-2.17c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                GitHub
+              </a>
+              <a href="https://aevyra.mintlify.app/verdict/introduction" target="_blank" rel="noopener" class="proj-btn">Docs</a>
+              <a href="https://pypi.org/project/aevyra-verdict/" target="_blank" rel="noopener" class="proj-btn">PyPI</a>
+            </div>
+          </div>
+          <h3 class="proj-name">Verdict</h3>
+          <p class="proj-desc">
+            Benchmark any LLM against your data. Pick the best model, then make it better.
+            Run side-by-side evals across OpenAI, Anthropic, and open-source models —
+            then fine-tune and measure improvement on your own task distribution.
+          </p>
+          <div class="proj-tags">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">LLM Evals</span>
+            <span class="tech-tag">Fine-tuning</span>
+            <span class="tech-tag">Open Source</span>
+          </div>
+          <div class="proj-footer">
+            <div class="proj-stats">
+              <span class="proj-stat" style="font-family:monospace; font-size:0.72rem; color:var(--teal-mid);">pip install aevyra-verdict</span>
+            </div>
+            <span class="proj-status status-active">Released v0.2.0</span>
+          </div>
+        </div>
+
+
+
+        <div class="project-card-full">
+          <div class="proj-icon-row">
+            <span class="proj-emoji">⚡</span>
+            <div class="proj-btns">
+              <a href="https://github.com/aevyraai/reflex" target="_blank" rel="noopener" class="proj-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.11.82-.26.82-.58v-2.17c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                GitHub
+              </a>
+              <a href="https://aevyra.mintlify.app/reflex/introduction" target="_blank" rel="noopener" class="proj-btn">Docs</a>
+              <a href="https://pypi.org/project/aevyra-reflex/" target="_blank" rel="noopener" class="proj-btn">PyPI</a>
+            </div>
+          </div>
+          <h3 class="proj-name">Reflex</h3>
+          <p class="proj-desc">
+            Agentic prompt optimization. Reflex takes your dataset and prompt, runs evals,
+            diagnoses why scores are falling short, and rewrites the prompt — iterating until
+            it converges. Works with any provider, supports MLflow and W&B for experiment tracking.
+          </p>
+          <div class="proj-tags">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">Prompt Optimization</span>
+            <span class="tech-tag">Open Source</span>
+          </div>
+          <div class="proj-footer">
+            <div class="proj-stats">
+              <span class="proj-stat" style="font-family:monospace; font-size:0.72rem; color:var(--teal-mid);">pip install aevyra-reflex</span>
+            </div>
+            <span class="proj-status status-active">Released v0.1.0</span>
+          </div>
+        </div>
+
+        <div class="project-card-full">
+          <div class="proj-icon-row">
+            <span class="proj-emoji">🔁</span>
+            <div class="proj-btns">
+              <a href="https://github.com/aevyraai" target="_blank" rel="noopener" class="proj-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.11.82-.26.82-.58v-2.17c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                GitHub
+              </a>
+            </div>
+          </div>
+          <h3 class="proj-name">Fine-tuning Infrastructure</h3>
+          <p class="proj-desc">
+            Closing the loop between evaluation and training. Good fine-tuning requires good
+            data curation, careful eval design, and knowing when to stop — none of which scales
+            with manual iteration. A pipeline that automates the cycle: evaluate, curate, train, repeat.
+          </p>
+          <div class="proj-tags">
+            <span class="tech-tag">Python</span>
+            <span class="tech-tag">Fine-tuning</span>
+            <span class="tech-tag">Open Source</span>
+          </div>
+          <div class="proj-footer">
+            <div class="proj-stats"></div>
+            <span class="proj-status status-archive">Coming Soon</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- GITHUB CTA -->
+      <div class="github-strip">
+        <div class="github-strip-text">
+          <h3>More on GitHub</h3>
+          <p>
+            These are highlights — there's more on GitHub, including experiments, forks,
+            and works-in-progress that didn't make the cut here.
+          </p>
+        </div>
+        <a href="https://github.com/aevyraai" target="_blank" rel="noopener" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.37.6.11.82-.26.82-.58v-2.17c-3.34.73-4.04-1.6-4.04-1.6-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          View GitHub Profile ↗
+        </a>
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <img src="aevyra-logo-final.svg" alt="Aevyra" class="footer-logo" />
+      <p class="footer-tagline">intelligence from beyond</p>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="projects.html">Projects</a>
+
+        <a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener">Contact</a>
+      </div>
+      <p class="footer-copy">© 2026 Aevyra. All rights reserved.</p>
+    </footer>
+
+  </div>
+
+  <script>
+    const toggle = document.getElementById('navToggle');
+    const links  = document.getElementById('navLinks');
+    toggle.addEventListener('click', () => links.classList.toggle('open'));
+  </script>
+</body>
+</html>
