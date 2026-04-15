@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why Your LLM Leaderboard Scores Don't Matter — Aevyra</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d0d1a;
+      --surface:     #13131f;
+      --surface2:    #1a1a2e;
+      --border:      rgba(255,255,255,0.07);
+      --teal:        #00d4aa;
+      --teal-dim:    #008877;
+      --teal-glow:   rgba(0,212,170,0.15);
+      --purple:      #6E3FF3;
+      --text:        #e8e8f0;
+      --text-dim:    #9999bb;
+      --font-body:   'Georgia', serif;
+      --font-mono:   'Courier New', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 18px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────── */
+    .container { max-width: 740px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 100px 24px 80px;
+      text-align: center;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,170,0.12) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 80%, rgba(110,63,243,0.10) 0%, transparent 60%);
+    }
+
+    /* orbiting black hole rings */
+    .hero-rings {
+      position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+      width: 380px; height: 380px; z-index: 0;
+    }
+    .ring {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(0,212,170,0.08);
+      animation: orbit 12s linear infinite;
+    }
+    .ring:nth-child(2) { inset: 20px; border-color: rgba(0,212,170,0.05); animation-duration: 18s; animation-direction: reverse; }
+    .ring:nth-child(3) { inset: 48px; border-color: rgba(110,63,243,0.07); animation-duration: 25s; }
+    @keyframes orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .hero-label {
+      position: relative; z-index: 1;
+      display: inline-block;
+      font-family: sans-serif;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--teal);
+      background: rgba(0,212,170,0.08);
+      border: 1px solid rgba(0,212,170,0.2);
+      border-radius: 20px;
+      padding: 5px 14px;
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      position: relative; z-index: 1;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .hero-sub {
+      position: relative; z-index: 1;
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      max-width: 560px; margin: 0 auto 40px;
+      font-style: italic;
+    }
+
+    .hero-meta {
+      position: relative; z-index: 1;
+      font-family: sans-serif;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    /* ── Article Body ─────────────────────────────────────────────── */
+    .article { padding: 64px 0 100px; }
+
+    .article p {
+      margin-bottom: 22px;
+      color: var(--text);
+    }
+
+    .article h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 56px 0 16px;
+      letter-spacing: -0.01em;
+    }
+    .article h2::before {
+      content: '';
+      display: block;
+      width: 28px; height: 2px;
+      background: var(--teal);
+      margin-bottom: 14px;
+      border-radius: 2px;
+    }
+
+    /* ── Pull quote ───────────────────────────────────────────────── */
+    .pullquote {
+      position: relative;
+      border-left: 3px solid var(--teal);
+      margin: 40px 0;
+      padding: 20px 28px;
+      background: var(--teal-glow);
+      border-radius: 0 8px 8px 0;
+    }
+    .pullquote p {
+      font-size: 1.15rem;
+      font-style: italic;
+      color: #fff;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* ── Callout box ──────────────────────────────────────────────── */
+    .callout {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin: 40px 0;
+    }
+    .callout-title {
+      font-family: sans-serif;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+    .callout p { margin: 0; color: var(--text); }
+
+    /* ── Stat cards ───────────────────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 40px 0;
+    }
+    @media (max-width: 600px) { .stats-row { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--teal), var(--purple));
+    }
+    .stat-number {
+      font-size: 2.2rem; font-weight: 700;
+      color: var(--teal);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-family: sans-serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    /* ── Benchmark chart ──────────────────────────────────────────── */
+    .chart-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      margin: 40px 0;
+    }
+    .chart-title {
+      font-family: sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 28px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 220px 1fr 80px;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 600px) {
+      .bar-row { grid-template-columns: 140px 1fr 60px; gap: 10px; }
+    }
+
+    .bar-label {
+      font-family: sans-serif;
+      font-size: 13px;
+      color: var(--text-dim);
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bar-label span {
+      display: block;
+      font-size: 11px;
+      color: rgba(153,153,187,0.5);
+      margin-top: 2px;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      width: 0;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .bar-fill.proprietary { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+    .bar-fill.oss        { background: linear-gradient(90deg, var(--teal-dim), var(--teal)); }
+
+    .bar-pct {
+      font-family: sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--text);
+    }
+
+    .chart-divider {
+      border: none;
+      border-top: 1px dashed rgba(255,255,255,0.07);
+      margin: 22px 0;
+    }
+
+    .chart-legend {
+      display: flex; gap: 24px;
+      margin-top: 24px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 8px;
+      font-family: sans-serif; font-size: 12px;
+      color: var(--text-dim);
+    }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .legend-dot.proprietary { background: var(--purple); }
+    .legend-dot.oss { background: var(--teal); }
+
+    /* ── Cost comparison ──────────────────────────────────────────── */
+    .cost-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 40px 0;
+    }
+    @media (max-width: 520px) { .cost-grid { grid-template-columns: 1fr; } }
+
+    .cost-card {
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+    .cost-card.proprietary {
+      background: linear-gradient(135deg, rgba(110,63,243,0.1), rgba(110,63,243,0.03));
+      border-color: rgba(110,63,243,0.2);
+    }
+    .cost-card.oss {
+      background: linear-gradient(135deg, rgba(0,212,170,0.08), rgba(0,212,170,0.02));
+      border-color: rgba(0,212,170,0.2);
+    }
+    .cost-tag {
+      font-family: sans-serif;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .cost-card.proprietary .cost-tag { color: #a78bfa; }
+    .cost-card.oss .cost-tag { color: var(--teal); }
+
+    .cost-model {
+      font-size: 1.05rem; font-weight: 600;
+      color: #fff; margin-bottom: 14px;
+    }
+    .cost-row {
+      display: flex; justify-content: space-between;
+      font-family: sans-serif; font-size: 13px;
+      color: var(--text-dim);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .cost-row:last-child { border-bottom: none; }
+    .cost-row .val { color: var(--text); font-weight: 500; }
+    .cost-row .val.highlight { color: var(--teal); }
+
+    /* ── Code block ───────────────────────────────────────────────── */
+    .code-wrap {
+      position: relative;
+      background: #0a0a14;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin: 40px 0;
+      overflow: hidden;
+    }
+    .code-topbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.r { background: #ff5f57; }
+    .dot.y { background: #febc2e; }
+    .dot.g { background: #28c840; }
+    .code-filename {
+      font-family: sans-serif; font-size: 12px;
+      color: var(--text-dim); margin-left: 8px;
+    }
+    pre {
+      padding: 24px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c9d1d9;
+    }
+    .kw  { color: #ff7b72; }
+    .fn  { color: #d2a8ff; }
+    .st  { color: #a5d6ff; }
+    .cm  { color: #5a6a7e; font-style: italic; }
+    .tl  { color: var(--teal); }
+    .nm  { color: #ffa657; }
+
+    /* ── Loop diagram ─────────────────────────────────────────────── */
+    .loop-diagram {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 40px 0;
+      padding: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .loop-step {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      padding: 16px 14px;
+    }
+    .loop-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--teal-glow);
+      border: 1px solid rgba(0,212,170,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      margin-bottom: 10px;
+      transition: transform 0.3s ease;
+    }
+    .loop-step:hover .loop-icon { transform: scale(1.1); }
+    .loop-step-label {
+      font-family: sans-serif;
+      font-size: 12px; font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      line-height: 1.3;
+      max-width: 90px;
+    }
+    .loop-arrow {
+      font-size: 18px; color: rgba(0,212,170,0.3);
+      padding: 0 4px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 500px) { .loop-arrow { display: none; } }
+
+    /* ── CTA ──────────────────────────────────────────────────────── */
+    .cta-block {
+      background: linear-gradient(135deg, rgba(0,212,170,0.1), rgba(110,63,243,0.08));
+      border: 1px solid rgba(0,212,170,0.2);
+      border-radius: 16px;
+      padding: 48px 40px;
+      text-align: center;
+      margin: 48px 0;
+    }
+    .cta-block h3 {
+      font-size: 1.4rem; font-weight: 700;
+      color: #fff; margin-bottom: 12px;
+    }
+    .cta-block p {
+      color: var(--text-dim); margin-bottom: 28px;
+    }
+    .cta-install {
+      display: inline-block;
+      background: #0a0a14;
+      border: 1px solid rgba(0,212,170,0.3);
+      border-radius: 8px;
+      padding: 12px 28px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--teal);
+      margin-bottom: 20px;
+      letter-spacing: 0.03em;
+    }
+    .cta-links {
+      display: flex; justify-content: center; gap: 24px;
+      font-family: sans-serif; font-size: 14px;
+    }
+    .cta-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .cta-links a:hover { color: var(--teal); }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px;
+      text-align: center;
+      font-family: sans-serif; font-size: 13px;
+      color: var(--text-dim);
+    }
+    .site-footer strong { color: var(--teal); }
+  </style>
+</head>
+<body>
+
+<!-- ── Hero ──────────────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="hero-rings">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+  </div>
+  <div class="hero-bg"></div>
+
+  <div class="hero-label">Aevyra · LLM Benchmarking</div>
+
+  <h1>Why Your LLM Leaderboard Scores Don't Matter</h1>
+
+  <p class="hero-sub">
+    Teams are making critical model selection decisions based on benchmarks
+    designed for someone else's problems.
+  </p>
+
+  <div class="hero-meta">By <a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener" style="color: var(--teal); text-decoration: none;">Ankith Gunapal</a> · Aevyra · April 2026 · 5 min read</div>
+</header>
+
+<!-- ── Article ────────────────────────────────────────────────────── -->
+<main class="article">
+<div class="container">
+
+  <p>It usually goes like this: your team needs a language model for a production
+  task. You check the latest leaderboard. GPT-5.4 is at the top. Claude and
+  Gemini are right there. You run a couple through a quick test. They both seem
+  solid. You pick one based on cost, latency, or whatever metric the leaderboard
+  highlighted. Six months later, you're frustrated. The model that looked best on
+  paper is producing output your team has to filter, fix, or reject constantly.</p>
+
+  <h2>The Leaderboard Illusion</h2>
+
+  <p>Public leaderboards measure one thing: how well a model generalizes across a
+  specific, fixed set of tasks — usually standardized benchmarks like MMLU,
+  HumanEval, or GSM8K. These benchmarks are useful for research. They're terrible
+  for product decisions.</p>
+
+  <p>The problem isn't that leaderboards lie. It's that they measure the wrong
+  thing for your use case. A model topping the summarization benchmark might
+  produce summaries that hallucinate numbers when applied to your financial
+  reports. GPT-4o-mini leading on reasoning tasks doesn't mean it handles your
+  domain's edge cases better than Claude Opus or Gemini. The benchmark is
+  measuring how well each model handles <em>their</em> distribution of problems —
+  not yours.</p>
+
+  <p>Here's the deeper issue: benchmarks optimize for breadth, not depth. They
+  test whether a model can handle a wide variety of tasks reasonably well. But
+  production systems don't care about breadth. They care about depth in one
+  specific domain. Your support ticket classifier doesn't need to be good at
+  reasoning about quantum mechanics. It needs to be exceptional at categorizing
+  your support tickets.</p>
+
+  <div class="pullquote">
+    <p>The ranking is real. The generalization is fiction.</p>
+  </div>
+
+  <p>Worse, teams treat leaderboard position as a proxy for "capability." If
+  model A beats model B on a benchmark, we assume A is objectively better. In
+  reality, A might be optimized for tasks that don't overlap with what you
+  actually need.</p>
+
+  <h2>The Better Mental Model</h2>
+
+  <p>A leaderboard rank tells you nothing about performance on your specific task.
+  Your real metric is: given your actual input distribution and success criteria,
+  which model gives you the output quality you need, at a cost and latency you
+  can afford?</p>
+
+  <div class="callout">
+    <div class="callout-title">The real question</div>
+    <p>Not "which model scores highest?" — but "which model scores highest
+    <em>on my task</em>, at a cost and latency I can afford?"</p>
+  </div>
+
+  <p>That sounds obvious. But teams skip this step constantly. It requires work.
+  You have to define what "good" means for your application. You have to build a
+  small eval dataset from your own data. You have to run models against it.
+  Leaderboards are comfortable because they hand you a number. Evaluating on your
+  own data is uncomfortable because it forces specificity.</p>
+
+  <h2>What This Looks Like in Practice</h2>
+
+  <p>Let's say you're building a report summarization pipeline — your analysts
+  upload earnings reports, research papers, or internal documents and the model
+  generates executive summaries. You started with GPT-4o-mini. It's accurate, handles
+  long documents well, and at low volume the cost was fine. Now you're processing
+  thousands of documents a day and the bill is significant.</p>
+
+  <p>The question on the table: can a smaller open-source model match
+  GPT-4o-mini's summary quality on your specific document types, at a fraction of the
+  cost? The 8B tier has gotten genuinely strong — Qwen3-8B from Alibaba,
+  DeepSeek-R1-Distill-Llama-8B, and Meta's Llama 3.1 8B are all competitive on
+  general benchmarks. And these aren't fringe choices — major organizations are
+  running models like these in production today, not because they're the newest,
+  but because they're the right fit for the task. But "competitive on general
+  benchmarks" is exactly the trap we just described. The only way to know if they
+  work for your summaries is to benchmark on your documents.</p>
+
+  <!-- ── Benchmark chart ── -->
+  <div class="chart-section" id="chart-section">
+    <div class="chart-title">Faithfulness score — 300 internal report summaries</div>
+
+    <div class="bar-row">
+      <div class="bar-label">GPT-4o-mini <span>OpenAI · proprietary</span></div>
+      <div class="bar-track"><div class="bar-fill proprietary" data-pct="91.3"></div></div>
+      <div class="bar-pct">91.3%</div>
+    </div>
+
+    <hr class="chart-divider">
+
+    <div class="bar-row">
+      <div class="bar-label">DeepSeek-R1-Distill-8B <span>DeepSeek · open source</span></div>
+      <div class="bar-track"><div class="bar-fill oss" data-pct="85.1"></div></div>
+      <div class="bar-pct">85.1%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Qwen3-8B <span>Alibaba · open source</span></div>
+      <div class="bar-track"><div class="bar-fill oss" data-pct="83.7"></div></div>
+      <div class="bar-pct">83.7%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Llama 3.1 8B Instruct <span>Meta · open source</span></div>
+      <div class="bar-track"><div class="bar-fill oss" data-pct="79.4"></div></div>
+      <div class="bar-pct">79.4%</div>
+    </div>
+
+    <div class="chart-legend">
+      <div class="legend-item"><div class="legend-dot proprietary"></div>Proprietary</div>
+      <div class="legend-item"><div class="legend-dot oss"></div>Open source (8B)</div>
+    </div>
+  </div>
+  <p style="font-size:0.78rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center;"><em>Numbers above are illustrative — your results will vary by task and data. Specific models will change; the approach won't.</em></p>
+
+  <!-- ── Cost comparison ── -->
+  <div class="cost-grid">
+    <div class="cost-card proprietary">
+      <div class="cost-tag">Proprietary</div>
+      <div class="cost-model">GPT-4o-mini</div>
+      <div class="cost-row"><span>Faithfulness</span><span class="val">91.3%</span></div>
+      <div class="cost-row"><span>Latency</span><span class="val">2.1s</span></div>
+      <div class="cost-row"><span>Input</span><span class="val">$0.15 / 1M tokens</span></div>
+      <div class="cost-row"><span>Output</span><span class="val">$0.60 / 1M tokens</span></div>
+      <div class="cost-row"><span>Cost / 1k reqs</span><span class="val">$0.54</span></div>
+      <div class="cost-row"><span>Self-hostable</span><span class="val">No</span></div>
+      <div class="cost-row"><span>Fine-tunable</span><span class="val">No</span></div>
+    </div>
+    <div class="cost-card oss">
+      <div class="cost-tag">Open Source · self-hosted</div>
+      <div class="cost-model">DeepSeek-R1-Distill-8B</div>
+      <div class="cost-row"><span>Faithfulness</span><span class="val highlight">89.7%</span></div>
+      <div class="cost-row"><span>Latency</span><span class="val highlight">0.5s</span></div>
+      <div class="cost-row"><span>Cost / 1k reqs</span><span class="val highlight">$0.24</span></div>
+      <div class="cost-row"><span>Self-hostable</span><span class="val highlight">Yes</span></div>
+      <div class="cost-row"><span>Fine-tunable</span><span class="val highlight">Yes</span></div>
+    </div>
+  </div>
+
+  <p>Now you have a real baseline. GPT-4o-mini leads on faithfulness at
+  $0.54/1k requests, but DeepSeek-R1-Distill-8B is only 6 points behind at
+  $0.24/1k — ~2x cheaper when cloud-hosted, and up to 5x if you
+  self-host. That gap might already be acceptable for your use case. Either way,
+  you're making the decision on data, not intuition.</p>
+
+  <p>The more interesting move: take that benchmark and use it to improve. Feed
+  your dataset and current prompt into Reflex — it runs evals, diagnoses where
+  scores are falling short, and rewrites the prompt iteratively until it
+  converges. Run the benchmark again with the new prompt. The score moves — maybe
+  to 89%, maybe to 92%. You now know whether prompt optimization closes the gap,
+  before you consider anything more expensive. If it does, you've solved a quality
+  problem in hours. If it doesn't, you have data telling you exactly why.</p>
+
+  <!-- ── The loop ── -->
+  <div class="loop-diagram">
+    <div class="loop-step">
+      <div class="loop-icon">📂</div>
+      <div class="loop-step-label">Dataset + prompt</div>
+    </div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step">
+      <div class="loop-icon">⚖️</div>
+      <div class="loop-step-label">Reflex scores on your data</div>
+    </div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step">
+      <div class="loop-icon">🔍</div>
+      <div class="loop-step-label">Diagnoses failures</div>
+    </div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step">
+      <div class="loop-icon">✏️</div>
+      <div class="loop-step-label">Rewrites the prompt</div>
+    </div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step">
+      <div class="loop-icon">✅</div>
+      <div class="loop-step-label">Ships when scores converge</div>
+    </div>
+  </div>
+
+  <h2>Why Teams Skip This</h2>
+
+  <p>Building a solid eval is friction. You need to collect real examples from
+  your production data. You need to define success criteria that your whole team
+  agrees on. You need a pipeline to test models consistently and track scores
+  over time. It takes days, not hours.</p>
+
+  <p>Leaderboards are frictionless. Three minutes and you have an answer. The
+  answer is confident — here's a number, here's a ranking. It feels like
+  decision-making. Teams tell themselves the leaderboard is a proxy. "Model that
+  tops the summarization benchmark is probably good at our reports too." That bet
+  works sometimes. When it doesn't, the cost is months of paying for the wrong
+  model, compounded by every downstream quality issue you could have caught
+  earlier.</p>
+
+  <h2>Moving Past Benchmarks</h2>
+
+  <p>You don't need much to start. You need a dataset of real examples from your
+  task and a definition of what a good response looks like — a rubric your judge
+  can score against.</p>
+
+  <p>Give that to Reflex. It runs evals on your dataset, diagnoses where the
+  current prompt is falling short, and rewrites it — iterating until scores
+  converge. The evaluation loop runs internally; you don't need to wire anything
+  together yourself.</p>
+
+  <!-- ── Code block ── -->
+  <div class="code-wrap">
+    <div class="code-topbar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <div class="code-filename">optimize.sh</div>
+    </div>
+<pre><span class="cm"># Your dataset: real examples from your task</span>
+<span class="cm"># Your prompt:  whatever you're running today</span>
+<span class="cm"># Your judge:   a rubric that defines what a good response looks like</span>
+
+aevyra-reflex optimize report_summaries.jsonl \
+  prompt.md \
+  -m openrouter/meta-llama/llama-3.1-8b-instruct \
+  --judge openrouter/qwen/qwen3-8b \
+  --judge-criteria judge_rubric.md \
+  -o best_prompt.md
+
+<span class="cm"># Baseline score : 0.38</span>
+<span class="cm"># Final score    : 0.89  (+134%)</span>
+<span class="cm"># Same model. Better prompt.</span></pre>
+  </div>
+
+  <p>Stop picking models based on how well they perform on tasks they weren't
+  built for. Bring your data, define what good looks like, and let the eval
+  do the work.</p>
+
+  <!-- ── Key stats ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-number">134%</div>
+      <div class="stat-label">score improvement from prompt optimization on real task data</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">~$1</div>
+      <div class="stat-label">total API cost to run a full prompt optimization on 100 real examples</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">~300</div>
+      <div class="stat-label">real examples needed to run a meaningful benchmark</div>
+    </div>
+  </div>
+
+  <!-- ── CTA ── -->
+  <div class="cta-block">
+    <h3>Optimize on your data, not someone else's benchmarks</h3>
+    <p>Reflex is open source. Bring your dataset and prompt — it handles the rest.</p>
+    <div class="cta-install">pip install aevyra-reflex</div>
+    <div class="cta-links">
+      <a href="https://aevyra.mintlify.app/reflex/introduction">Documentation →</a>
+      <a href="https://github.com/aevyraai/reflex">GitHub →</a>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer class="site-footer">
+  <strong>aevyra</strong> · Building the infrastructure layer for the age of intelligent systems.
+</footer>
+
+<script>
+  // Animate bars when chart scrolls into view
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.bar-fill').forEach(bar => {
+          const pct = parseFloat(bar.dataset.pct);
+          bar.style.width = pct + '%';
+        });
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+
+  observer.observe(document.getElementById('chart-section'));
+</script>
+
+</body>
+</html>
