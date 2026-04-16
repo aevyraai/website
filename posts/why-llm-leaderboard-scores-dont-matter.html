@@ -507,8 +507,8 @@
   <p>The problem isn't that leaderboards lie. It's that they measure the wrong
   thing for your use case. A model topping the summarization benchmark might
   produce summaries that hallucinate numbers when applied to your financial
-  reports. GPT-4o-mini leading on reasoning tasks doesn't mean it handles your
-  domain's edge cases better than Claude Opus or Gemini. The benchmark is
+  reports. A model leading on coding benchmarks doesn't mean it handles your
+  domain's edge cases better than Llama 3.1 8B or Qwen 3 8B. The benchmark is
   measuring how well each model handles <em>their</em> distribution of problems —
   not yours.</p>
 
@@ -629,9 +629,9 @@
   you're making the decision on data, not intuition.</p>
 
   <p>And whichever model you pick, the next move is the same — feed your dataset
-  and prompt into Reflex, let it diagnose where scores are falling short and
+  and prompt into Reflex (an open-source agentic prompt optimizer), let it diagnose where scores are falling short and
   rewrite the prompt iteratively until it converges. Same model, better prompt.
-  Run the benchmark again and the score moves — maybe to 89%, maybe to 92%. You
+  Run the benchmark again and the score moves. You
   now know whether the problem was the prompt all along, before you try to
   reduce cost by switching models or self-hosting.</p>
 
