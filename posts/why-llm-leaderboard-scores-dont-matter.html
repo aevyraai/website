@@ -611,7 +611,6 @@
       <div class="cost-row"><span>Output</span><span class="val">$0.60 / 1M tokens</span></div>
       <div class="cost-row"><span>Cost / 1k reqs</span><span class="val">$0.54</span></div>
       <div class="cost-row"><span>Self-hostable</span><span class="val">No</span></div>
-      <div class="cost-row"><span>Fine-tunable</span><span class="val">No</span></div>
     </div>
     <div class="cost-card oss">
       <div class="cost-tag">Open Source · self-hosted</div>
@@ -620,7 +619,6 @@
       <div class="cost-row"><span>Latency</span><span class="val highlight">0.5s</span></div>
       <div class="cost-row"><span>Cost / 1k reqs</span><span class="val highlight">$0.24</span></div>
       <div class="cost-row"><span>Self-hostable</span><span class="val highlight">Yes</span></div>
-      <div class="cost-row"><span>Fine-tunable</span><span class="val highlight">Yes</span></div>
     </div>
   </div>
 
@@ -630,13 +628,12 @@
   self-host. That gap might already be acceptable for your use case. Either way,
   you're making the decision on data, not intuition.</p>
 
-  <p>The more interesting move: take that benchmark and use it to improve. Feed
-  your dataset and current prompt into Reflex — it runs evals, diagnoses where
-  scores are falling short, and rewrites the prompt iteratively until it
-  converges. Run the benchmark again with the new prompt. The score moves — maybe
-  to 89%, maybe to 92%. You now know whether prompt optimization closes the gap,
-  before you consider anything more expensive. If it does, you've solved a quality
-  problem in hours. If it doesn't, you have data telling you exactly why.</p>
+  <p>And whichever model you pick, the next move is the same — feed your dataset
+  and prompt into Reflex, let it diagnose where scores are falling short and
+  rewrite the prompt iteratively until it converges. Same model, better prompt.
+  Run the benchmark again and the score moves — maybe to 89%, maybe to 92%. You
+  now know whether the problem was the prompt all along, before you try to
+  reduce cost by switching models or self-hosting.</p>
 
   <!-- ── The loop ── -->
   <div class="loop-diagram">
