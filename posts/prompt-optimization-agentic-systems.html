@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Optimization for Agentic AI Systems — Aevyra</title>
+  <meta property="og:title" content="Prompt Optimization for Agentic AI Systems — and Where It Breaks Down" />
+  <meta property="og:description" content="Most teams only optimize the prompt. An agentic system has five other things that affect output quality." />
+  <meta property="og:image" content="https://aevyra.vercel.app/posts/og-leaderboard.png" />
+  <meta property="og:url" content="https://aevyra.vercel.app/posts/prompt-optimization-agentic-systems.html" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0d0d1a;
+      --surface:   #13131f;
+      --surface2:  #1a1a2e;
+      --border:    rgba(255,255,255,0.07);
+      --teal:      #00d4aa;
+      --teal-glow: rgba(0,212,170,0.15);
+      --purple:    #6E3FF3;
+      --magenta:   #e040fb;
+      --red:       #ff4444;
+      --text:      #e8e8f0;
+      --text-dim:  #9999bb;
+      --font-body: 'Georgia', serif;
+      --font-mono: 'Courier New', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--font-body); font-size: 18px;
+      line-height: 1.75; -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 740px; margin: 0 auto; padding: 0 24px; }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 40px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,13,26,0.92); backdrop-filter: blur(12px);
+    }
+    .nav-logo img { height: 28px; }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+      color: var(--text-dim); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a.nav-cta {
+      color: var(--teal); border: 1px solid rgba(0,212,170,0.3);
+      padding: 6px 16px; border-radius: 6px;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: 100px 24px 80px; text-align: center;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 0%,  rgba(0,212,170,0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 80% 90%, rgba(224,64,251,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 75% 10%, rgba(110,63,243,0.08) 0%, transparent 60%);
+    }
+    .hero-rings {
+      position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+      width: 380px; height: 380px; z-index: 0;
+    }
+    .ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 1px solid rgba(0,212,170,0.06);
+      animation: orbit 12s linear infinite;
+    }
+    .ring:nth-child(2) { inset: 20px; border-color: rgba(224,64,251,0.04); animation-duration: 18s; animation-direction: reverse; }
+    .ring:nth-child(3) { inset: 48px; border-color: rgba(110,63,243,0.06); animation-duration: 25s; }
+    @keyframes orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .hero-label {
+      position: relative; z-index: 1; display: inline-block;
+      font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal);
+      background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.2);
+      border-radius: 20px; padding: 5px 14px; margin-bottom: 28px;
+    }
+    .hero h1 {
+      position: relative; z-index: 1;
+      font-size: clamp(1.9rem, 4.5vw, 2.8rem); font-weight: 700;
+      line-height: 1.2; letter-spacing: -0.02em; color: #fff; margin-bottom: 20px;
+    }
+    .hero-sub {
+      position: relative; z-index: 1;
+      font-size: 1.05rem; color: var(--text-dim);
+      max-width: 580px; margin: 0 auto 40px; font-style: italic;
+    }
+    .hero-meta {
+      position: relative; z-index: 1;
+      font-family: var(--font-sans); font-size: 13px; color: var(--text-dim);
+    }
+    .hero-meta a { color: var(--teal); text-decoration: none; }
+
+    /* ARTICLE */
+    .article { padding: 64px 0 100px; }
+    .article p { margin-bottom: 22px; color: var(--text); }
+    .article code, .callout code, .decision-table code, .cta-block code {
+      font-family: var(--font-mono); font-size: 0.85em;
+      color: var(--teal);
+      background: rgba(0,212,170,0.08);
+      border: 1px solid rgba(0,212,170,0.15);
+      padding: 1px 6px; border-radius: 4px;
+      white-space: nowrap;
+    }
+    .pullquote code {
+      font-family: var(--font-mono); font-size: 0.85em;
+      color: #fff;
+      background: rgba(0,212,170,0.18);
+      padding: 1px 6px; border-radius: 4px;
+      white-space: nowrap;
+    }
+    /* code inside <pre> blocks should inherit the pre styling, not this chip style */
+    pre code { all: unset; }
+    .article h2 {
+      font-size: 1.45rem; font-weight: 700; color: #fff;
+      margin: 56px 0 16px; letter-spacing: -0.01em;
+    }
+    .article h2::before {
+      content: ''; display: block; width: 28px; height: 2px;
+      background: var(--teal); margin-bottom: 14px; border-radius: 2px;
+    }
+
+    /* PULL QUOTE */
+    .pullquote {
+      border-left: 3px solid var(--teal); margin: 40px 0;
+      padding: 20px 28px; background: var(--teal-glow); border-radius: 0 8px 8px 0;
+    }
+    .pullquote p { font-size: 1.15rem; font-style: italic; color: #fff; margin: 0; line-height: 1.6; }
+
+    /* CALLOUT */
+    .callout {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 28px 32px; margin: 40px 0;
+    }
+    .callout-title {
+      font-family: var(--font-sans); font-size: 11px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 12px;
+    }
+    .callout p { margin: 0; color: var(--text); }
+
+    /* ── ARCHITECTURE DIAGRAM ─────────────────────────────────────── */
+    .arch-diagram {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 36px 28px; margin: 40px 0;
+      overflow-x: auto;
+    }
+    .arch-label {
+      font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-dim); text-align: center; margin-bottom: 28px;
+    }
+    .arch-flow {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 24px; flex-wrap: nowrap; min-width: 560px;
+    }
+    .arch-io {
+      background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.15);
+      border-radius: 8px; padding: 10px 14px; text-align: center;
+      font-family: var(--font-sans); font-size: 11px;
+      color: var(--text-dim); min-width: 72px;
+    }
+    .arch-node {
+      border-radius: 10px; padding: 14px 16px; text-align: center;
+      min-width: 110px; flex-shrink: 0;
+    }
+    .arch-node.n1 { background: rgba(0,212,170,0.10); border: 1px solid rgba(0,212,170,0.3); }
+    .arch-node.n2 { background: rgba(110,63,243,0.10); border: 1px solid rgba(110,63,243,0.3); }
+    .arch-node.n3 { background: rgba(224,64,251,0.10); border: 1px solid rgba(224,64,251,0.3); }
+    .arch-node .node-label {
+      font-family: var(--font-sans); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px;
+      white-space: nowrap;
+    }
+    .n1 .node-label { color: var(--teal); }
+    .n2 .node-label { color: #a78bfa; }
+    .n3 .node-label { color: var(--magenta); }
+    .arch-node .node-name {
+      font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: #fff;
+    }
+    .arch-arrow {
+      font-family: var(--font-sans); font-size: 18px;
+      color: rgba(255,255,255,0.2); padding: 0 6px; flex-shrink: 0;
+    }
+    /* Observe lines */
+    .arch-observe {
+      display: flex; align-items: flex-start; justify-content: center;
+      gap: 0; min-width: 560px; position: relative; margin-bottom: 0;
+    }
+    .observe-spacer { flex: 1; }
+    .observe-line {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0; min-width: 110px; flex-shrink: 0;
+    }
+    .observe-line .vline {
+      width: 1px; height: 24px;
+      border-left: 1px dashed rgba(0,212,170,0.35);
+    }
+    .observe-line .vdot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(0,212,170,0.5);
+    }
+    .arch-meta-box {
+      border: 1px solid rgba(0,212,170,0.3); border-radius: 10px;
+      background: rgba(0,212,170,0.06); padding: 16px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin: 0 0 0 0; flex-wrap: wrap;
+    }
+    .meta-title {
+      font-family: var(--font-sans); font-size: 12px; font-weight: 700;
+      color: var(--teal); letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .meta-desc {
+      font-family: var(--font-sans); font-size: 12px; color: var(--text-dim);
+      margin-top: 4px;
+    }
+    .meta-badge {
+      font-family: var(--font-sans); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--teal);
+      background: rgba(0,212,170,0.12); border: 1px solid rgba(0,212,170,0.25);
+      border-radius: 20px; padding: 4px 12px; white-space: nowrap;
+    }
+    .arch-optimizes {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      flex-wrap: wrap; margin-top: 16px;
+      font-family: var(--font-sans); font-size: 12px; color: var(--text-dim);
+    }
+    .arch-optimizes .arr { color: var(--magenta); font-size: 16px; }
+    .arch-optimizes .target {
+      background: rgba(224,64,251,0.1); border: 1px solid rgba(224,64,251,0.3);
+      border-radius: 6px; padding: 4px 14px;
+      font-family: var(--font-sans); font-size: 11px; font-weight: 700;
+      color: var(--magenta); text-transform: uppercase; letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    /* ── OPTIMIZATION SCOPE TABLE ─────────────────────────────────── */
+    .scope-table { margin: 32px 0; overflow-x: auto; }
+    .scope-grid {
+      display: grid;
+      grid-template-columns: 140px repeat(4, 1fr);
+      border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+      min-width: 520px;
+    }
+    .scope-cell {
+      padding: 12px 14px; border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border); font-family: var(--font-sans); font-size: 12px;
+    }
+    .scope-cell:last-child, .scope-row:last-child .scope-cell { border-bottom: none; }
+    .scope-row { display: contents; }
+    .scope-row .scope-cell:last-child { border-right: none; }
+    .scope-header {
+      background: var(--surface2); font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: 10px; color: var(--text-dim);
+    }
+    .scope-header.teal  { color: var(--teal); }
+    .scope-header.purple { color: #a78bfa; }
+    .scope-header.mag   { color: var(--magenta); }
+    .scope-component { background: var(--surface); color: var(--text-dim); font-weight: 600; }
+    .scope-yes  { background: rgba(0,212,170,0.08); color: var(--teal); text-align: center; font-weight: 700; }
+    .scope-part { background: rgba(110,63,243,0.06); color: #a78bfa; text-align: center; }
+    .scope-no   { background: transparent; color: #3a3a5c; text-align: center; }
+    .scope-note { background: var(--surface); }
+
+    /* APPROACH CARDS */
+    .approach-cards { display: flex; flex-direction: column; gap: 16px; margin: 32px 0; }
+    .approach-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px 28px; border-left: 3px solid var(--teal);
+    }
+    .approach-card.purple { border-left-color: var(--purple); }
+    .approach-card.magenta { border-left-color: var(--magenta); }
+    .approach-card.dim { border-left-color: #3a3a5c; }
+    .approach-name {
+      font-family: var(--font-sans); font-size: 14px; font-weight: 700;
+      color: #fff; margin-bottom: 8px;
+    }
+    .approach-card p { margin: 0; font-size: 0.95rem; color: var(--text-dim); }
+
+    /* CODE BLOCKS */
+    .code-block {
+      background: #0a0a16; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; margin: 32px 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 18px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+    }
+    .code-dots { display: flex; gap: 6px; }
+    .code-dots span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+    .code-filename { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+    .code-block pre {
+      padding: 22px 24px; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 13.5px;
+      line-height: 1.7; color: #ccd6f6;
+    }
+    .c-comment { color: #636e8a; }
+    .c-keyword { color: #c792ea; }
+    .c-string  { color: #c3e88d; }
+    .c-fn      { color: #82aaff; }
+    .c-teal    { color: var(--teal); }
+
+    /* DECISION TABLE */
+    .decision-table {
+      width: 100%; border-collapse: collapse; margin: 32px 0; font-size: 0.93rem;
+    }
+    .decision-table th {
+      font-family: var(--font-sans); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--teal); padding: 10px 16px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .decision-table td {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      color: var(--text-dim); vertical-align: top;
+    }
+    .decision-table td:first-child { color: var(--text); font-style: italic; }
+    .decision-table tr:last-child td { border-bottom: none; }
+    .decision-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* CTA */
+    .cta-block {
+      margin-top: 72px; padding-top: 48px;
+      border-top: 1px solid var(--border); text-align: center;
+    }
+    .cta-block h3 {
+      font-family: var(--font-sans); font-size: 13px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 12px;
+    }
+    .cta-block p { font-size: 1rem; color: var(--text-dim); margin-bottom: 24px; }
+    .cta-block .code-block { text-align: left; max-width: 400px; margin: 0 auto 24px; }
+    .cta-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+    .cta-links a {
+      font-family: var(--font-sans); font-size: 13px;
+      color: var(--teal); text-decoration: none;
+      border-bottom: 1px solid rgba(0,212,170,0.3);
+      padding-bottom: 2px; transition: border-color 0.2s;
+    }
+    .cta-links a:hover { border-color: var(--teal); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 40px; text-align: center;
+    }
+    .footer-logo img { height: 24px; opacity: 0.6; margin-bottom: 12px; }
+    .footer-tagline {
+      font-family: var(--font-sans); font-size: 11px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 24px;
+    }
+    .footer-links { display: flex; gap: 24px; justify-content: center; margin-bottom: 24px; }
+    .footer-links a {
+      font-family: var(--font-sans); font-size: 13px;
+      color: var(--text-dim); text-decoration: none; transition: color 0.2s;
+    }
+    .footer-links a:hover { color: #fff; }
+    .footer-copy { font-family: var(--font-sans); font-size: 12px; color: #3a3a5c; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo">
+      <img src="../aevyra-logo-final.svg" alt="Aevyra" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../blog.html">Blog</a></li>
+      <li><a href="../projects.html">Projects</a></li>
+      <li><a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener" class="nav-cta">Get in touch</a></li>
+    </ul>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-rings">
+      <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    </div>
+    <span class="hero-label">Agentic AI · Prompt Optimization</span>
+    <h1>Prompt Optimization for Agentic AI Systems — and Where It Breaks Down</h1>
+    <p class="hero-sub">Most teams only optimize the prompt. An agentic system has five other things that affect output quality.</p>
+    <p class="hero-meta">
+      By <a href="https://www.linkedin.com/in/ankithgunapal/">Ankith Gunapal</a> · Aevyra · April 2026 · 9 min read
+    </p>
+  </div>
+
+  <div class="container">
+    <article class="article">
+
+      <p>On LinkedIn last week, an AI practitioner I know made an observation I keep thinking about: hill-climbing on evals tends to leak information specific to those evals rather than improve the system. Their follow-up question: <em>"What if you hill climbed other supporting systems such as metric definitions, business logic, etc. that you may be using as part of the agentic AI?"</em> It's the right question. It deserves a longer answer than a comment.</p>
+
+      <p>Most teams think of optimization as "improve the prompt." You write a prompt, run some examples, it doesn't quite work, you tweak it. Repeat until it's good enough. This works at low volume and for simple tasks.</p>
+
+      <p>An agentic system breaks this model immediately.</p>
+
+      <p>You're not optimizing one prompt in isolation. You have a retrieval layer — the step that fetches relevant context, typically via vector search over a knowledge base — a reasoning step, tool definitions, a judge or scoring mechanism, business rules that determine what "correct" even means. Tuning the prompt while holding everything else fixed gets you partway there. But the right answer isn't "optimize everything else too." It's "optimize the prompt in <em>full awareness</em> of everything else, and deliberately don't hill-climb the supporting systems themselves." This post develops why that's the right scope, and how Reflex's pipeline mode implements it.</p>
+
+      <h2>What Optimization Actually Means in an Agentic System</h2>
+
+      <p>In a single-turn task the optimization surface is contained — one prompt, one output, one judge. In an agentic system the surface is much larger. Here's what's actually in play:</p>
+
+      <!-- Scope table -->
+      <div class="scope-table">
+        <div class="scope-grid">
+          <div class="scope-cell scope-header">Component</div>
+          <div class="scope-cell scope-header">Manual</div>
+          <div class="scope-cell scope-header teal">Single-prompt mode<br><span style="font-weight:400;color:rgba(0,212,170,0.6);text-transform:none;letter-spacing:0;">(Promptim, Reflex standard)</span></div>
+          <div class="scope-cell scope-header purple">Framework pipeline<br><span style="font-weight:400;color:rgba(167,139,250,0.6);text-transform:none;letter-spacing:0;">(DSPy/GEPA, AdalFlow)</span></div>
+          <div class="scope-cell scope-header mag">Trace-aware pipeline<br><span style="font-weight:400;color:rgba(224,64,251,0.6);text-transform:none;letter-spacing:0;">(Reflex pipeline mode)</span></div>
+
+          <div class="scope-cell scope-component">Prompt</div>
+          <div class="scope-cell scope-part">manual</div>
+          <div class="scope-cell scope-yes">✓</div>
+          <div class="scope-cell scope-yes">✓</div>
+          <div class="scope-cell scope-yes">✓</div>
+
+          <div class="scope-cell scope-component">Retrieval logic</div>
+          <div class="scope-cell scope-no">—</div>
+          <div class="scope-cell scope-no">—</div>
+          <div class="scope-cell scope-part">partial</div>
+          <div class="scope-cell scope-part">signal only</div>
+
+          <div class="scope-cell scope-component">Tool definitions</div>
+          <div class="scope-cell scope-no">—</div>
+          <div class="scope-cell scope-no">—</div>
+          <div class="scope-cell scope-part">partial</div>
+          <div class="scope-cell scope-part">signal only</div>
+
+          <div class="scope-cell scope-component">Judge / metric</div>
+          <div class="scope-cell scope-no">—</div>
+          <div class="scope-cell scope-no">fixed</div>
+          <div class="scope-cell scope-no">fixed</div>
+          <div class="scope-cell scope-no">fixed</div>
+
+          <div class="scope-cell scope-component">Business logic</div>
+          <div class="scope-cell scope-no">—</div>
+          <div class="scope-cell scope-no">—</div>
+          <div class="scope-cell scope-no">—</div>
+          <div class="scope-cell scope-part">human loop</div>
+        </div>
+      </div>
+
+      <p>Each of these affects output quality. Most teams only optimize the first row.</p>
+
+      <h2>The Landscape of What People Actually Do</h2>
+
+      <div class="approach-cards">
+        <div class="approach-card dim">
+          <div class="approach-name">Manual prompt engineering</div>
+          <p>Still the most common approach in production. Iterate by intuition — try a few variants, pick the one that seems better, ship it. Works until it doesn't. At scale, with complex agentic pipelines, intuition stops being reliable.</p>
+        </div>
+        <div class="approach-card">
+          <div class="approach-name">Single-prompt optimizers — <a href="https://github.com/aevyraai/reflex" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(0,212,170,0.3);">Reflex (standard mode)</a>, <a href="https://github.com/langchain-ai/promptim" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(0,212,170,0.3);">Promptim</a></div>
+          <p>Bring a dataset of (input, ideal output) pairs and an existing prompt. The optimizer runs evals, diagnoses where scores are falling short, and rewrites the prompt iteratively until it converges. Right tool when the task has one prompt and a clean input/output contract — classification, summarisation, structured extraction. Reflex's standard mode and Promptim (LangChain, tightly integrated with LangSmith) both follow this pattern.</p>
+        </div>
+        <div class="approach-card purple">
+          <div class="approach-name">Framework pipeline optimizers — <a href="https://github.com/stanfordnlp/dspy" target="_blank" rel="noopener" style="color:#a78bfa;text-decoration:none;border-bottom:1px solid rgba(167,139,250,0.3);">DSPy</a> (incl. <a href="https://arxiv.org/abs/2507.19457" target="_blank" rel="noopener" style="color:#a78bfa;text-decoration:none;border-bottom:1px solid rgba(167,139,250,0.3);">GEPA</a>), <a href="https://github.com/SylphAI-Inc/AdalFlow" target="_blank" rel="noopener" style="color:#a78bfa;text-decoration:none;border-bottom:1px solid rgba(167,139,250,0.3);">AdalFlow</a></div>
+          <p>Treats your whole pipeline as a program and optimizes across it jointly. You define your pipeline declaratively in the framework's abstractions and the optimizer tunes prompts and few-shot examples at multiple nodes simultaneously. DSPy is the most mature option, and its GEPA optimizer (ICLR 2026 Oral) goes further than earlier approaches like MIPROv2: it samples full execution trajectories and reflects on them in natural language to guide prompt evolution — the strongest published work on trace-aware optimization. AdalFlow follows a similar declarative approach with a lighter footprint. The tradeoff common to all of them: you need to restructure your pipeline into the framework's abstractions upfront.</p>
+        </div>
+        <div class="approach-card" style="border-left-color: #10b981;">
+          <div class="approach-name" style="color:#10b981;">Trace-aware pipeline optimizer — <a href="https://github.com/aevyraai/reflex" target="_blank" rel="noopener" style="color:#10b981;text-decoration:none;border-bottom:1px solid rgba(16,185,129,0.3);">Reflex (pipeline mode)</a></div>
+          <p>Same optimization scope as single-prompt mode — one system prompt, everything else fixed — but fundamentally different feedback: Reflex re-runs your <code>pipeline_fn</code> on every candidate, so the judge scores the live execution trace rather than a stored input/output pair (no stale signal). Same trace-level semantics as GEPA, with a much smaller structural ask. You keep your existing agent code and expose a single function, <code>pipeline_fn(prompt, input) → AgentTrace</code>. You mark which node is the optimization target with <code>optimize=True</code> and the rest of the trace — tool calls, retrieved context, intermediate classifications — becomes evaluation signal for the judge. Right tool when you have an existing agentic system you can't or don't want to rewrite into a declarative framework.</p>
+        </div>
+        <div class="approach-card" style="border-left-color: #38bdf8;">
+          <div class="approach-name">Agentic eval platforms — <a href="https://smith.langchain.com/" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;border-bottom:1px solid rgba(56,189,248,0.3);">LangSmith</a>, <a href="https://github.com/confident-ai/deepeval" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;border-bottom:1px solid rgba(56,189,248,0.3);">DeepEval</a>, <a href="https://www.braintrust.dev/" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;border-bottom:1px solid rgba(56,189,248,0.3);">Braintrust</a></div>
+          <p>Purpose-built for evaluating agents: trajectory evaluators, trace-level metrics, step-by-step observability. These give you rich diagnostic signal across intermediate steps but are primarily evaluation tools, not optimization loops. You get the score; you still need to close the loop back into prompt rewrites yourself. That gap is what Reflex pipeline mode is designed to close.</p>
+        </div>
+        <div class="approach-card magenta">
+          <div class="approach-name">Textual gradients &amp; LLM-as-optimizer — <a href="https://github.com/zou-group/textgrad" target="_blank" rel="noopener" style="color:var(--magenta);text-decoration:none;border-bottom:1px solid rgba(224,64,251,0.3);">TextGrad</a>, <a href="https://github.com/google-deepmind/opro" target="_blank" rel="noopener" style="color:var(--magenta);text-decoration:none;border-bottom:1px solid rgba(224,64,251,0.3);">OPRO</a></div>
+          <p>Two related but distinct research directions. TextGrad (Stanford, published in Nature) treats LLM feedback as "textual gradients" backpropagated through a computation graph — the differentiation-via-text framing. OPRO (Google DeepMind) is gradient-free: the LLM itself acts as the optimizer, generating new candidate prompts from a history of (prompt, score) pairs. Both shift prompt optimization closer to ML-style loops, though production adoption outside research settings is still limited.</p>
+        </div>
+      </div>
+
+      <h2>What None of Them Solve</h2>
+
+      <p>All of the approaches above assume the judge is fixed. You define what "good" looks like, and the optimizer works to score well against that definition. But what if your metric definition is wrong? What if your business logic is encoding assumptions that don't hold?</p>
+
+      <div class="pullquote">
+        <p>If you hill climb on the judge criteria at the same time as the prompt, you risk Goodhart's Law: the metric becomes easier to game rather than more accurate. The judge needs to stay stable as a ground truth signal.</p>
+      </div>
+
+      <p>Business logic optimization is more like program synthesis than prompt optimization — a different problem space. And for multi-agent systems, joint optimization across the whole system while preserving coherence is genuinely an open problem.</p>
+
+      <p>The evaluation side of this is increasingly well-tooled. Platforms like <strong style="color:#fff">LangSmith</strong>'s trajectory evaluators, <strong style="color:#fff">DeepEval</strong>'s trace-level metrics, and <strong style="color:#fff">Braintrust</strong>'s agentic eval flows give you observability into intermediate steps — you can see where a pipeline falls down, not just that it did. A cluster of recent research formalizes this as an optimization direction: the <a href="https://arxiv.org/abs/2410.10934" target="_blank" rel="noopener" style="color:var(--teal);">Agent-as-a-Judge paper</a> (Oct 2024), <a href="https://arxiv.org/abs/2504.04365" target="_blank" rel="noopener" style="color:var(--teal);">AutoPDL</a> (Apr 2025, IBM), <a href="https://arxiv.org/abs/2507.19457" target="_blank" rel="noopener" style="color:var(--teal);">GEPA</a> (Jul 2025, ICLR 2026 Oral), and <a href="https://arxiv.org/abs/2601.07477" target="_blank" rel="noopener" style="color:var(--teal);">JudgeFlow</a> (Jan 2026). GEPA closes the loop inside DSPy — sampling trajectories and reflecting on them in natural language to propose prompt updates. Reflex's <strong style="color:#fff">pipeline mode</strong> closes the same loop for existing agentic pipelines that haven't been restructured into a declarative framework.</p>
+
+      <h2>A Concrete Approach: Reflex Pipeline Mode</h2>
+
+      <p>Reflex's <strong style="color:#fff">pipeline mode</strong> ships exactly this pattern as a first-class feature. You write a <code>pipeline_fn</code> that takes a prompt and an input, runs your agent end-to-end, and returns an <code>AgentTrace</code> — a list of <code>TraceNode</code>s, one per step, each marked either <code>optimize=True</code> (the node whose prompt should be tuned) or <code>optimize=False</code> (nodes the judge should see for grounding but not try to rewrite). Reflex calls <code>pipeline_fn</code> with every candidate prompt, scores the full trace with a judge, and tunes just the target node.</p>
+
+      <p>Here's what it looks like for a developer assistant that must call tools (<code>search_docs</code>, <code>calculate</code>, <code>get_date</code>) before answering — a case where a static Q&amp;A dataset would miss the most important failure mode: the model bypassing tools entirely and answering from training knowledge.</p>
+
+      <!-- Architecture diagram -->
+      <div class="arch-diagram">
+        <div class="arch-label">Reflex pipeline mode — AgentTrace with per-node optimize flags</div>
+
+        <!-- Top flow -->
+        <div style="overflow-x:auto;">
+          <div class="arch-flow">
+            <div class="arch-io">User<br>Question</div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-node n1">
+              <div class="node-label">optimize=False</div>
+              <div class="node-name">tools_called</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-node n2">
+              <div class="node-label">optimize=False</div>
+              <div class="node-name">tool_results</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-node n3">
+              <div class="node-label">optimize=True</div>
+              <div class="node-name">answer</div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="arch-io">Output</div>
+          </div>
+
+          <!-- Observe lines -->
+          <div class="arch-observe">
+            <div style="flex:1;min-width:72px;"></div>
+            <div style="width:6px;"></div>
+            <div class="observe-line" style="min-width:110px;">
+              <div class="vline"></div><div class="vdot"></div>
+            </div>
+            <div style="width:6px;"></div>
+            <div class="observe-line" style="min-width:110px;">
+              <div class="vline"></div><div class="vdot"></div>
+            </div>
+            <div style="width:6px;"></div>
+            <div class="observe-line" style="min-width:110px;">
+              <div class="vline"></div><div class="vdot"></div>
+            </div>
+            <div style="flex:1;min-width:72px;"></div>
+          </div>
+
+          <!-- System-aware judge box -->
+          <div class="arch-meta-box">
+            <div>
+              <div class="meta-title">LLM Judge</div>
+              <div class="meta-desc">Scores the full AgentTrace — tool calls, tool results, and final answer — against a grounding rubric</div>
+            </div>
+            <div class="meta-badge">trace-aware</div>
+          </div>
+        </div>
+
+        <!-- Optimization arrow -->
+        <div class="arch-optimizes">
+          <span>optimization signal</span>
+          <span class="arr">↓</span>
+          <span>Reflex tunes</span>
+          <span class="target">answer prompt</span>
+        </div>
+      </div>
+
+      <p>You describe your pipeline once, as code, and return an <code>AgentTrace</code>. Reflex handles the rest: splitting the dataset, running the pipeline per candidate, judging the trace, and selecting the best-val prompt.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-filename">pipeline.py</span>
+        </div>
+        <pre><span class="c-keyword">from</span> aevyra_reflex <span class="c-keyword">import</span> AgentTrace, TraceNode
+
+<span class="c-keyword">def</span> <span class="c-fn">pipeline_fn</span>(prompt: str, question: str) -> AgentTrace:
+    messages = [{<span class="c-string">"role"</span>: <span class="c-string">"system"</span>, <span class="c-string">"content"</span>: prompt},
+                {<span class="c-string">"role"</span>: <span class="c-string">"user"</span>,   <span class="c-string">"content"</span>: question}]
+
+    all_calls, all_results = [], []
+
+    <span class="c-keyword">for</span> _round <span class="c-keyword">in</span> <span class="c-fn">range</span>(MAX_TOOL_ROUNDS):
+        response = client.chat.completions.<span class="c-fn">create</span>(
+            model=MODEL, messages=messages,
+            tools=TOOL_SCHEMAS, tool_choice=<span class="c-string">"auto"</span>,
+            temperature=<span class="c-string">0.0</span>,   <span class="c-comment"># required for deterministic variant comparison</span>
+        )
+        msg = response.choices[<span class="c-string">0</span>].message
+        <span class="c-keyword">if not</span> msg.tool_calls:
+            final_answer = msg.content
+            <span class="c-keyword">break</span>
+
+        messages.<span class="c-fn">append</span>(msg)
+        <span class="c-keyword">for</span> tc <span class="c-keyword">in</span> msg.tool_calls:
+            args = json.<span class="c-fn">loads</span>(tc.function.arguments)
+            result = TOOL_REGISTRY[tc.function.name](**args)
+            all_calls.<span class="c-fn">append</span>({<span class="c-string">"name"</span>: tc.function.name, <span class="c-string">"args"</span>: args})
+            all_results.<span class="c-fn">append</span>({<span class="c-string">"name"</span>: tc.function.name, <span class="c-string">"result"</span>: result})
+            messages.<span class="c-fn">append</span>({<span class="c-string">"role"</span>: <span class="c-string">"tool"</span>,
+                             <span class="c-string">"tool_call_id"</span>: tc.id,
+                             <span class="c-string">"content"</span>: result})
+
+    <span class="c-keyword">return</span> <span class="c-fn">AgentTrace</span>(nodes=[
+        <span class="c-fn">TraceNode</span>(<span class="c-string">"tools_called"</span>, input=question,
+                  output=all_calls, optimize=<span class="c-keyword">False</span>),
+        <span class="c-fn">TraceNode</span>(<span class="c-string">"tool_results"</span>, input=all_calls,
+                  output=all_results, optimize=<span class="c-keyword">False</span>),
+        <span class="c-fn">TraceNode</span>(<span class="c-string">"answer"</span>,
+                  input={<span class="c-string">"question"</span>: question, <span class="c-string">"tool_results"</span>: all_results},
+                  output=final_answer, optimize=<span class="c-keyword">True</span>),
+    ])</pre>
+      </div>
+
+      <p>Three things make this an optimizer hook, not just a tracer. First, <code>optimize=False</code> on <code>tools_called</code> and <code>tool_results</code> tells Reflex: <em>the judge should see these for grounding, but don't try to rewrite them.</em> Second, <code>optimize=True</code> on <code>answer</code> marks the one node whose prompt is being tuned. Third, because Reflex calls <code>pipeline_fn</code> with each candidate prompt and re-runs the full agentic loop, the tools called, the intermediate results, and the final answer all reflect the prompt being evaluated — no stale traces, no mismatch between the trace and the prompt that produced it.</p>
+
+      <div class="pullquote">
+        <p>Setting <code>temperature=0.0</code> inside <code>pipeline_fn</code> is not optional. Reflex compares variants by running the same inputs against the same pipeline; at provider default temperatures, the same prompt scores differently on different runs and the optimizer ends up chasing sampling noise instead of real gains.</p>
+      </div>
+
+      <p>The judge rubric is built around the failure mode that only the full trace reveals — the agent answering from training knowledge even when the right tool was available:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-filename">judge.md</span>
+        </div>
+        <pre>Score the response from 1 to 5 based on the FULL PIPELINE TRACE shown above.
+
+5 — Correct answer, fully grounded in tool results.
+    For doc questions:  answer is drawn from search_docs output.
+    For math questions: calculate was called and the stated figure
+                        matches its output.
+    For date questions: get_date was called and the arithmetic
+                        is correct.
+
+4 — Correct with one minor gap or reasonable inference from tools.
+
+3 — Partially grounded. Some info from tools but also unsupported
+    details, or misses a key figure the tool returned.
+
+2 — Technically correct but the agent ignored available tools and
+    answered from training knowledge.
+
+1 — Contradicts tool results, fabricates details, or gives up when
+    tools clearly contain the answer.
+
+IMPORTANT: An answer that is factually correct but bypasses
+available tools should score 2, not 4.</pre>
+      </div>
+
+      <p>Then run Reflex from the command line. The model is baked into <code>pipeline_fn</code>, so there is no <code>--model</code> flag — only <code>--judge</code>, which scores the trace:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-filename">shell</span>
+        </div>
+        <pre>aevyra-reflex optimize \
+  --pipeline-file   pipeline.py \
+  --inputs-file     questions.json \
+  prompt.md \
+  --reasoning-model openrouter/qwen/qwen3-8b \
+  --judge           openrouter/qwen/qwen3-30b-a3b \
+  --judge-criteria  judge.md \
+  --strategy auto \
+  -o best_prompt.md</pre>
+      </div>
+
+      <p>The <code>auto</code> strategy picks between three optimization modes — <strong style="color:#fff">structural</strong> (adds headers, checklists, and explicit phases to vague prompts), <strong style="color:#fff">iterative</strong> (diagnoses the worst-scoring traces and proposes targeted revisions), and <strong style="color:#fff">PDO</strong> (pairwise tournament for fine-tuning when the prompt is nearly correct) — and sequences them based on where the prompt currently is. Reflex splits the dataset 3-way (train / val / test) and always selects the prompt that held up best on the unseen val set. That makes overfitting visible: a prompt that wins training duels but degrades on val is dropped in favour of one that generalises.</p>
+
+      <p>On the dev assistant example above, this ran in about 53 minutes against 30 questions, moved the test score from 0.65 to 0.725, and cost under $1. The <a href="https://aevyra.mintlify.app/reflex/tutorial-dev-assistant" target="_blank" rel="noopener" style="color:var(--teal);">full tutorial</a> walks through the phase-by-phase logs — including an over-optimization checkpoint at iteration 6 where the prompt grew to 3,251 characters and train scores started dropping while val had already peaked, and how best-val selection recovers the right prompt.</p>
+
+      <h2>The Honest Recommendation</h2>
+
+      <table class="decision-table">
+        <thead>
+          <tr><th>Your situation</th><th>Best approach</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Single prompt, static input/output dataset, no tool use</td>
+            <td>Reflex standard mode. Bring your dataset, define your judge, let it iterate — no <code>pipeline_fn</code> needed.</td>
+          </tr>
+          <tr>
+            <td>Tool-calling agent where correctness depends on intermediate steps</td>
+            <td>Reflex pipeline mode. Wrap your agentic loop in <code>pipeline_fn</code> returning <code>AgentTrace</code>, mark the node to optimize, and let the judge score the full trace.</td>
+          </tr>
+          <tr>
+            <td>Building a multi-step pipeline from scratch, open to restructuring</td>
+            <td>DSPy with GEPA. The upfront investment in a declarative pipeline pays off for complex multi-hop reasoning or RAG at scale, and GEPA is the most mature trace-aware optimizer.</td>
+          </tr>
+          <tr>
+            <td>Need observability into an existing agentic system</td>
+            <td>LangSmith, DeepEval, or Braintrust for trace-level evaluation — they tell you <em>where</em> the pipeline falls down. Pair with Reflex pipeline mode to turn that signal into a prompt update.</td>
+          </tr>
+          <tr>
+            <td>Need to validate your judge criteria</td>
+            <td>Do this manually before you optimize anything. A bad metric sends any optimizer the wrong way.</td>
+          </tr>
+          <tr>
+            <td>Business logic and metric definitions</td>
+            <td>Human-in-the-loop. Propose changes, have a domain expert verify, then re-score.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>The Open Problem</h2>
+
+      <p>Pipeline mode closes the trace-level optimization loop for existing agentic systems: the judge sees every tool call and result, the optimizer tunes a prompt against grounded traces rather than static outputs, and you don't have to rewrite your stack into a declarative framework to get there. But it deliberately doesn't close everything.</p>
+
+      <p>By design, Reflex optimizes only nodes you mark <code>optimize=True</code>. It doesn't rewrite your tool schemas, doesn't mutate your retrieval index, doesn't edit the judge rubric. Those stay fixed because they encode intent — what <em>good</em> means in your domain — and the moment the optimizer starts hill-climbing on them, Goodhart's Law takes over: the metric becomes easier to game rather than more accurate. Someone still has to define the rubric and the tools correctly and keep them stable. You've moved the human validation requirement from "review every output" to "validate the rubric once" — a much better investment — but you haven't eliminated it.</p>
+
+      <p>Joint, automatic optimization of prompts, retrieval, tool definitions, metrics, and business logic together — while preserving coherence — is still the frontier. Multi-agent systems amplify the problem. For the near-term, the practical answer is to pick the right layer: pipeline mode for prompts against a stable judge and stable tools, human-in-the-loop for everything else, and don't try to optimize the judge and the prompt in the same run.</p>
+
+      <div class="callout">
+        <div class="callout-title">The pattern that works right now</div>
+        <p>Wrap your agent in a <code>pipeline_fn</code> returning <code>AgentTrace</code>. Mark the node to optimize with <code>optimize=True</code>; everything else stays <code>optimize=False</code> so the judge sees it for grounding. Set <code>temperature=0</code>. Write a judge rubric that penalises tool-bypass, not just wrong answers. Run <code>aevyra-reflex optimize --pipeline-file pipeline.py</code> with <code>--strategy auto</code>. Let best-val selection pick the prompt. Validate rubric changes manually before propagating. Repeat.</p>
+      </div>
+
+      <div class="cta-block">
+        <h3>Reflex pipeline mode is open source</h3>
+        <p>Write a <code>pipeline_fn</code>, return an <code>AgentTrace</code>, and let Reflex re-run your pipeline against every candidate prompt.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div></div>
+          <pre>pip install aevyra-reflex</pre>
+        </div>
+        <div class="cta-links">
+          <a href="https://aevyra.mintlify.app/reflex/tutorial-dev-assistant" target="_blank" rel="noopener">Pipeline mode tutorial</a>
+          <a href="https://aevyra.mintlify.app/reflex/introduction" target="_blank" rel="noopener">Documentation</a>
+          <a href="https://github.com/aevyraai/reflex" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+
+    </article>
+  </div>
+
+  <footer>
+    <div class="footer-logo"><img src="../aevyra-logo-final.svg" alt="Aevyra" /></div>
+    <p class="footer-tagline">intelligence from beyond</p>
+    <div class="footer-links">
+      <a href="../index.html">Home</a>
+      <a href="../blog.html">Blog</a>
+      <a href="../projects.html">Projects</a>
+      <a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener">Contact</a>
+    </div>
+    <p class="footer-copy">© 2026 Aevyra. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
