@@ -1,0 +1,17 @@
+{
+  "headers": [
+    {
+      "source": "/schemas/(.*)",
+      "headers": [
+        { "key": "Content-Type", "value": "application/schema+json" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/schemas/agent-trace/v1",
+      "destination": "/schemas/agent-trace/v1.json"
+    }
+  ]
+}
