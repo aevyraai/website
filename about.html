@@ -15,7 +15,6 @@
       padding-top: 3rem;
     }
 
-    /* ── Profile card ── */
     .profile-card {
       position: sticky;
       top: 100px;
@@ -31,9 +30,6 @@
       border: 1px solid var(--border);
       background: var(--bg-card);
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       position: relative;
     }
 
@@ -42,11 +38,6 @@
       height: 100%;
       object-fit: cover;
       display: block;
-    }
-
-    .profile-photo-placeholder {
-      font-size: 5rem;
-      opacity: 0.2;
     }
 
     .profile-photo::after {
@@ -71,6 +62,7 @@
       color: var(--text-muted);
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      margin-top: 0.3rem;
     }
 
     .profile-links {
@@ -93,7 +85,6 @@
       color: var(--teal-mid);
     }
 
-    /* ── Content ── */
     .about-content {
       display: flex;
       flex-direction: column;
@@ -120,7 +111,6 @@
       margin-bottom: 0;
     }
 
-    /* ── Experience cards ── */
     .exp-list {
       display: flex;
       flex-direction: column;
@@ -172,9 +162,6 @@
       font-size: 0.95rem;
       font-weight: 500;
       color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
 
     .exp-period {
@@ -191,14 +178,12 @@
       line-height: 1.7;
     }
 
-    /* ── Skills ── */
     .skills-grid {
       display: flex;
       flex-wrap: wrap;
       gap: 0.4rem;
     }
 
-    /* ── Divider ── */
     .section-divider {
       border: none;
       border-top: 1px solid var(--border);
@@ -214,10 +199,10 @@
         flex-direction: row;
         align-items: center;
         flex-wrap: wrap;
+        gap: 1.5rem;
       }
       .profile-photo {
         width: 120px;
-        aspect-ratio: 1;
         flex-shrink: 0;
       }
     }
@@ -263,7 +248,7 @@
           </div>
           <div>
             <div class="profile-name">Ankith Gunapal</div>
-            <div class="profile-title" style="margin-top: 0.3rem;">Applied AI Engineer · Founder, Aevyra</div>
+            <div class="profile-title">Applied AI Engineer · Founder, Aevyra</div>
           </div>
           <div class="profile-links">
             <a href="https://www.linkedin.com/in/ankithgunapal/" target="_blank" rel="noopener" class="profile-link">
@@ -288,7 +273,6 @@
         <!-- CONTENT -->
         <div class="about-content">
 
-          <!-- WHY AEVYRA -->
           <div class="about-section">
             <h2>Why I built Aevyra</h2>
             <p>
@@ -304,7 +288,6 @@
 
           <hr class="section-divider" />
 
-          <!-- EXPERIENCE -->
           <div class="about-section">
             <h2>What I've built at Meta</h2>
             <div class="exp-list">
@@ -352,7 +335,6 @@
 
           <hr class="section-divider" />
 
-          <!-- SKILLS -->
           <div class="about-section">
             <h2>Core skills</h2>
             <div class="skills-grid">
@@ -377,7 +359,6 @@
 
           <hr class="section-divider" />
 
-          <!-- CTA -->
           <div class="about-section">
             <h2>Get in touch</h2>
             <p>
